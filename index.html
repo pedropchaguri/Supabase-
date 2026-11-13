@@ -86,8 +86,7 @@ nav div{overflow-x:auto}
     <div class="big" id="saldo">R$ 0,00</div>
     <div id="resumo" style="margin-top:8px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
-      <button class="btn" id="rb0" onclick="receber(0)"></button>
-      <button class="btn" id="rb1" onclick="receber(1)"></button>
+      <div id="recBtns" style="display:contents"></div>
       <input id="sw" type="number" inputmode="decimal" step="0.01" placeholder="Valor (R$)" style="grid-column:1/-1;margin:0">
       <button class="btn" style="background:var(--ln);color:var(--tx)" onclick="somarSaldo()">Somar à carteira</button>
       <button class="btn" style="background:var(--ln);color:var(--tx)" onclick="ajustarSaldo()">Definir saldo</button>
@@ -215,6 +214,18 @@ nav div{overflow-x:auto}
   <div class="card" id="plPie"></div>
 </section>
 
+<div id="setup" style="position:fixed;inset:0;z-index:95;background:var(--bg);display:none;align-items:flex-start;justify-content:center;padding:calc(24px + env(safe-area-inset-top,0px)) 16px 24px;overflow:auto">
+  <div style="width:100%;max-width:440px">
+    <h1 style="margin:0 0 4px">Sua renda</h1>
+    <div class="mu" style="margin-bottom:12px">Cadastre seu salário fixo e seus recebimentos variáveis (use um valor médio estimado). O app usa isso no calendário, na carteira e nos cálculos. Você pode mudar quando quiser, no botão "Renda".</div>
+    <div id="srows"></div>
+    <button class="btn" style="background:var(--ln);color:var(--tx);margin-bottom:8px" onclick="edAdd()">+ Adicionar renda</button>
+    <button class="btn" onclick="edSave()">Salvar</button>
+    <button class="btn" id="sk" style="margin-top:8px;background:none;color:var(--mu)" onclick="edSkip()">Pular por enquanto</button>
+    <button class="btn" id="scancel" style="margin-top:8px;background:none;color:var(--mu);display:none" onclick="document.getElementById('setup').style.display='none'">Cancelar</button>
+  </div>
+</div>
+
 <nav><div>
   <button class="on" data-t="home" aria-label="Início">🏠</button>
   <button data-t="gastos" aria-label="Gastos">💸</button>
@@ -226,9 +237,9 @@ nav div{overflow-x:auto}
 </div></nav>
 
 <script>
-var RENDA=[{n:"5º dia útil",v:880},{n:"Dia 20",v:440}],LIM=200,K="fin_v1",TOT=RENDA[0].v+RENDA[1].v;
+var RENDA=[],LIM=200,K="fin_v1",TOT=0;
 var S={g:[],i:[]};
-var SB=window.supabase?supabase.createClient("https://tiaoatcjqmgjanluriqi.supabase.co","sb_publishable_Dr7BJsHp1WpzeAH-kXeEDA_hJMt4nTV"):null,UID=null,saveT=null;
+var SB=window.supabase?supabase.createClient("https://tiaoatcjqmgjanluriqi.supabase.co","sb_publishable_Dr7BJsHp1WpzeAH-kXeEDA_hJMt4nTV",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null,UID=null,saveT=null;
 function save(){try{if(UID)localStorage.setItem(K,JSON.stringify(S))}catch(e){}
   if(UID&&SB){clearTimeout(saveT);saveT=setTimeout(function(){SB.from("financas").upsert({user_id:UID,data:S,updated_at:new Date().toISOString()}).then(function(r){if(r.error)setConta("","\u26a0\ufe0f N\u00e3o foi poss\u00edvel sincronizar agora")})},500)}}
 function $(i){return document.getElementById(i)}
@@ -237,17 +248,18 @@ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;
 var now=new Date(),ym=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
 function quintoUtil(y,m){var d=new Date(y,m,1),c=0;while(true){var w=d.getDay();if(w>0&&w<6){c++;if(c==5)return d}d.setDate(d.getDate()+1)}}
 function fmtD(d){return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"short"})}
-function proximo(){var y=now.getFullYear(),m=now.getMonth(),t=new Date(y,m,now.getDate());
-  var a=quintoUtil(y,m),b=new Date(y,m,20),out=[];
-  [[a,RENDA[0].v,"5º dia útil"],[b,RENDA[1].v,"Dia 20"]].forEach(function(x){var d=x[0];if(d<t){d=x[2]=="Dia 20"?new Date(y,m+1,20):quintoUtil(y,m+1)}out.push({d:d,v:x[1],n:x[2]})});
+function nUtil(y,m,n){var d=new Date(y,m,1),c=0;while(true){var w=d.getDay();if(w>0&&w<6){c++;if(c>=n)return d}d.setDate(d.getDate()+1)}}
+function dataRend(r,y,m){if(r.t=="util")return nUtil(y,m,r.d);return new Date(y,m,Math.min(r.d,new Date(y,m+1,0).getDate()))}
+function proximo(){var t=new Date(now.getFullYear(),now.getMonth(),now.getDate()),y=t.getFullYear(),m=t.getMonth(),out=[];
+  RENDA.forEach(function(r,i){var d=dataRend(r,y,m);if(d<t)d=dataRend(r,y,m+1);out.push({d:d,v:r.v,n:r.n+(r.vv?" (estimado)":""),i:i})});
   return out.sort(function(p,q){return p.d-q.d})}
-function render(){autoFix();
+function render(){autoFix();RENDA=S.rend||[];TOT=RENDA.reduce(function(a,r){return a+r.v},0);
   $("mes").textContent=now.toLocaleDateString("pt-BR",{month:"long"});
   var mg=S.g.filter(function(x){return x.d.slice(0,7)==ym}),tg=mg.reduce(function(a,x){return a+x.v},0);
   var ti=S.i.reduce(function(a,x){return a+x.v},0),ent=RENDA.reduce(function(a,x){return a+x.v},0),fx=(S.f||[]).reduce(function(a,x){return a+x.v},0),sal=S.w||0;
   $("saldo").textContent=R(sal);$("saldo").className="big "+(sal<0?"neg":"");
   $("resumo").textContent="Gastos no mês: "+R(tg)+" · Fixos: "+R(fx);
-  $("ent").textContent=R(ent);$("entd").textContent=R(RENDA[0].v)+" + "+R(RENDA[1].v);$("inv").textContent=R(ti);
+  $("ent").textContent=R(ent);$("entd").textContent=RENDA.map(function(r){return R(r.v)}).join(" + ")||"Cadastre sua renda";$("inv").textContent=R(ti);
   var p=Math.min(100,tg/LIM*100);$("limBar").style.width=p+"%";$("limBar").style.background=p>=100?"var(--rd)":p>=70?"var(--am)":"var(--ac)";
   $("limTxt").textContent=R(tg)+" / "+R(LIM);
   $("limMsg").textContent=tg>LIM?"Você passou do limite em "+R(tg-LIM):"Ainda restam "+R(LIM-tg)+" do limite";
@@ -262,7 +274,7 @@ function render(){autoFix();
 function sugestoes(sal,ti,tg){
   var pc=PCT()/100,meta=Math.round(TOT*pc),T=[];
   T.push(["Comece pela reserva de emergência","Com renda de "+R(TOT)+", uma reserva de 3 a 6 meses seria de "+R(TOT*3)+" a "+R(TOT*6)+". Vale guardar aos poucos em Tesouro Selic ou CDB com liquidez diária (100% do CDI), onde o dinheiro rende e você saca quando precisar."]);
-  T.push(["Meta de "+R(meta)+" por mês","A regra 50/30/20 sugere guardar uma parte da renda (você definiu "+PCT()+"%). Como você recebe em duas datas, separe uma parte assim que cada pagamento cair: "+R(RENDA[0].v*pc)+" dos "+R(RENDA[0].v)+" e "+R(RENDA[1].v*pc)+" dos "+R(RENDA[1].v)+"."]);
+  T.push(["Meta de "+R(meta)+" por mês","A regra 50/30/20 sugere guardar uma parte da renda (você definiu "+PCT()+"%). Separe uma parte assim que cada pagamento cair: "+(RENDA.map(function(r){return R(r.v*pc)+" dos "+R(r.v)}).join(" e ")||"cadastre sua renda")+"."]);
   if(tg>LIM*0.7)T.push(["Atenção ao limite","Você já usou "+Math.round(tg/LIM*100)+"% do limite de R$ 200. Segurar os gastos agora libera mais dinheiro para investir."]);
   if(sal>0&&ti<TOT*3)T.push(["Na carteira: "+R(sal),"Se sobrar no fim do mês, mover pelo menos metade para a reserva ajuda a criar o hábito. Cofrinhos de bancos digitais com rendimento diário também servem para começar."]);
   if(ti>=TOT*3)T.push(["Reserva completa","Com a reserva pronta, dá para estudar investimentos de prazo maior, como Tesouro IPCA+ ou fundos de índice, sempre diversificando."]);
@@ -298,22 +310,23 @@ function renderFixos(){S.f=S.f||[];var t=S.f.reduce(function(a,x){return a+x.v},
   $("listaF").innerHTML=(S.f.length?'<div class="res"><span>Total fixo por mês</span><b>'+R(t)+'</b></div>':'')+S.f.slice().sort(function(a,b){return a.dia-b.dia}).map(function(x){return '<div class="item"><div><b>'+esc(x.t)+'</b><div class="mu">Vence dia '+x.dia+(x.auto?' · automático':'')+(x.paid==ym?' · pago ✓':'')+'</div><button class="x" style="padding:0;font-size:12px;color:var(--ac)" onclick="autoF('+x.id+')">'+(x.auto?'desativar automático':'ativar automático')+'</button></div><div><b>'+R(x.v)+'</b>'+(x.paid==ym||x.auto?'':'<button class="x" style="font-size:13px;color:var(--ac)" onclick="payF('+x.id+')">Paguei</button>')+'<button class="x" onclick="delF('+x.id+')">×</button></div></div>'}).join("")||'<div class="mu">Nenhum gasto fixo ainda.</div>'}
 var CM=new Date(now.getFullYear(),now.getMonth(),1);
 function calMove(d){CM=new Date(CM.getFullYear(),CM.getMonth()+d,1);renderCal()}
-function renderCal(){var y=CM.getFullYear(),m=CM.getMonth(),first=new Date(y,m,1).getDay(),dias=new Date(y,m+1,0).getDate(),q=quintoUtil(y,m).getDate(),fx={},h="";
+function renderCal(){var y=CM.getFullYear(),m=CM.getMonth(),first=new Date(y,m,1).getDay(),dias=new Date(y,m+1,0).getDate(),fx={},pay={},h="";
+  RENDA.forEach(function(r){var d=dataRend(r,y,m).getDate();(pay[d]=pay[d]||[]).push(r)});
   (S.f||[]).forEach(function(f){var d=Math.min(f.dia,dias);fx[d]=(fx[d]||0)+f.v});
   ["D","S","T","Q","Q","S","S"].forEach(function(s){h+='<div class="h">'+s+'</div>'});
   for(var i=0;i<first;i++)h+='<div></div>';
-  for(var d=1;d<=dias;d++){var c="";if(d==q||d==20)c+=" pay";if(fx[d])c+=" dot";if(y==now.getFullYear()&&m==now.getMonth()&&d==now.getDate())c+=" tod";h+='<div class="'+c+'">'+d+'</div>'}
+  for(var d=1;d<=dias;d++){var c="";if(pay[d])c+=" pay";if(fx[d])c+=" dot";if(y==now.getFullYear()&&m==now.getMonth()&&d==now.getDate())c+=" tod";h+='<div class="'+c+'">'+d+'</div>'}
   $("calG").innerHTML=h;$("calT").textContent=CM.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
-  $("calL").innerHTML='<div class="res"><span>🟩 Dia '+q+' (5º dia útil)</span><b class="pos">+ '+R(RENDA[0].v)+'</b></div><div class="res"><span>🟩 Dia 20</span><b class="pos">+ '+R(RENDA[1].v)+'</b></div>'+Object.keys(fx).sort(function(a,b){return a-b}).map(function(d){return '<div class="res"><span>🔴 Dia '+d+' · fixos</span><b>'+R(fx[d])+'</b></div>'}).join("")}
+  $("calL").innerHTML=Object.keys(pay).sort(function(a,b){return a-b}).map(function(d){return pay[d].map(function(r){return '<div class="res"><span>🟩 Dia '+d+' · '+esc(r.n)+(r.vv?' (estimado)':'')+'</span><b class="pos">+ '+R(r.v)+'</b></div>'}).join("")}).join("")+Object.keys(fx).sort(function(a,b){return a-b}).map(function(d){return '<div class="res"><span>🔴 Dia '+d+' · fixos</span><b>'+R(fx[d])+'</b></div>'}).join("")||'<div class="mu">Cadastre sua renda para ver os recebimentos.</div>'}
 function dueOf(y,m,f){return new Date(y,m,Math.min(f.dia,new Date(y,m+1,0).getDate()))}
-function carteira(){var t=new Date(now.getFullYear(),now.getMonth(),now.getDate()),np=proximo()[0].d,dias=Math.max(1,Math.round((np-t)/864e5)),res=0;
+function carteira(){var t=new Date(now.getFullYear(),now.getMonth(),now.getDate()),np=(proximo()[0]||{d:new Date(t.getTime()+30*864e5)}).d,dias=Math.max(1,Math.round((np-t)/864e5)),res=0;
   (S.f||[]).forEach(function(f){var d=dueOf(t.getFullYear(),t.getMonth(),f);if(f.paid==ym)d=dueOf(t.getFullYear(),t.getMonth()+1,f);if(d<np)res+=f.v});
   faturas().forEach(function(f){if(f.due<np)res+=f.total});
   var w=S.w||0,disp=w-res;return{w:w,res:res,disp:disp,dias:dias,dia:disp/dias,np:np}}
 function renderWallet(){var c=carteira();
   $("saldo").textContent=R(c.w);$("saldo").className="big "+(c.w<0?"neg":"");
   $("resumo").innerHTML='<div class="res"><span>Reservado (fixos e fatura)</span><b>'+R(c.res)+'</b></div><div class="res"><span>Disponível até '+fmtD(c.np)+'</span><b class="'+(c.disp<0?'neg':'pos')+'">'+R(c.disp)+'</b></div><div class="res"><span>Pode gastar por dia ('+c.dias+(c.dias==1?' dia':' dias')+')</span><b>'+R(Math.max(0,c.dia))+'</b></div>';
-  $("rb0").textContent="Recebi "+R(RENDA[0].v);$("rb1").textContent="Recebi "+R(RENDA[1].v)}
+  $("recBtns").innerHTML=RENDA.map(function(r,i){return '<button class="btn" onclick="receber('+i+')">Recebi '+R(r.v)+'</button>'}).join("")}
 function toast(t,undo){var e=$("toast");if(!e){e=document.createElement("div");e.id="toast";e.style.cssText="position:fixed;left:16px;right:16px;bottom:calc(86px + env(safe-area-inset-bottom,0px));max-width:448px;margin:0 auto;background:var(--tx);color:var(--bg);padding:12px 16px;border-radius:12px;z-index:20;justify-content:space-between;gap:12px;align-items:center;font-size:14px";document.body.appendChild(e)}
   e.innerHTML="";var s=document.createElement("span");s.textContent=t;e.appendChild(s);
   if(undo){var b=document.createElement("button");b.textContent="Desfazer";b.style.cssText="background:none;border:0;color:inherit;font-weight:700;text-decoration:underline;font-size:14px;cursor:pointer";b.onclick=function(){undo();e.style.display="none"};e.appendChild(b)}
@@ -323,7 +336,7 @@ function receber(k){var v=RENDA[k].v;S.w=(S.w||0)+v;save();render();toast("Adici
 function somarSaldo(){var v=parseFloat($("sw").value);if(!(v>0)){toast("Digite um valor maior que zero");return}S.w=(S.w||0)+v;$("sw").value="";save();render();toast("Adicionado "+R(v)+" à carteira",function(){S.w=(S.w||0)-v;save();render()})}
 function ajustarSaldo(){var v=parseFloat($("sw").value);if(isNaN(v)){toast("Digite o valor que você tem agora");return}var ant=S.w||0;S.w=v;$("sw").value="";save();render();toast("Saldo definido em "+R(v),function(){S.w=ant;save();render()})}
 function payF(id){var f=S.f.find(function(x){return x.id==id});if(!f)return;f.paid=ym;S.w=(S.w||0)-f.v;save();render()}
-function recebidoMes(){var t=hoje(),y=t.getFullYear(),m=t.getMonth(),s=0;[quintoUtil(y,m),new Date(y,m,20)].forEach(function(d,k){if(d<=t)s+=RENDA[k].v});return s}
+function recebidoMes(){var t=hoje(),y=t.getFullYear(),m=t.getMonth(),s=0;RENDA.forEach(function(r){if(dataRend(r,y,m)<=t)s+=r.v});return s}
 function mediaVar(){var t=new Date(now.getFullYear(),now.getMonth(),now.getDate()),ini=new Date(t.getTime()-30*864e5),tot=0,min=null;
   S.g.forEach(function(x){var d=new Date(x.d+"T00:00:00");if(d>=ini&&d<=t){tot+=x.v;if(!min||d<min)min=d}});
   if(!min)return 0;var span=Math.min(30,Math.max(7,Math.round((t-min)/864e5)+1));return tot/span}
@@ -352,7 +365,7 @@ function faturas(){var o={};(S.g||[]).forEach(function(x){if(x.m!="cred"||x.pago
 function usadoLim(){return faturas().reduce(function(a,f){return a+f.total},0)}
 function saldoEm(due){var t=hoje(),w=S.w||0,rec=0,fix=0,fat=0;
   for(var i=0;i<=24;i++){var y=t.getFullYear(),m=t.getMonth()+i;if(new Date(y,m,1)>due)break;
-    [quintoUtil(y,m),new Date(y,m,20)].forEach(function(d,k){if(d>t&&d<=due)rec+=RENDA[k].v});
+    RENDA.forEach(function(r){var d=dataRend(r,y,m);if(d>t&&d<=due)rec+=r.v});
     (S.f||[]).forEach(function(f){var d=dueOf(y,m,f);if(d<=due&&!(i==0&&f.paid==ym)&&(d>=t||i==0))fix+=f.v})}
   faturas().forEach(function(f){if(f.due<=due)fat+=f.total});
   var dias=Math.max(0,Math.round((due-t)/864e5)),vr=mediaVar()*dias;
@@ -422,8 +435,17 @@ function addI(){var n=$("in").value.trim(),v=parseFloat($("iv").value);if(!n||!(
 function editI(k){$("in").value=S.i[k].n;$("iv").value=S.i[k].v;$("iv").focus()}
 function delI(k){S.i.splice(k,1);save();render()}
 $("gdt").value=ymd(hoje());$("ldt").value=ymd(hoje());
+function abrirSetup(first){ED=JSON.parse(JSON.stringify(S.rend||[]));if(!ED.length)ED.push({n:"Salário",v:0,t:"util",d:5,vv:false});edRender();$("sk").style.display=first?"block":"none";$("scancel").style.display=first?"none":"block";$("setup").style.display="flex"}
+function edRender(){$("srows").innerHTML=ED.map(function(r,i){return '<div class="card" style="margin-bottom:10px"><div class="row"><b>Renda '+(i+1)+'</b><button class="x" onclick="edDel('+i+')">×</button></div><label class="mu">Tipo</label><select onchange="edSet('+i+',\'vv\',this.value==\'1\')"><option value="0"'+(r.vv?'':' selected')+'>Salário fixo</option><option value="1"'+(r.vv?' selected':'')+'>Recebimento variável (valor estimado)</option></select><label class="mu">Nome</label><input value="'+esc(r.n)+'" oninput="edSet('+i+',\'n\',this.value)"><label class="mu">Valor (R$)</label><input type="number" inputmode="decimal" step="0.01" value="'+(r.v||"")+'" oninput="edSet('+i+',\'v\',parseFloat(this.value)||0)"><label class="mu">Recebe no</label><select onchange="edSet('+i+',\'t\',this.value)"><option value="dia"'+(r.t=="dia"?' selected':'')+'>Dia do mês</option><option value="util"'+(r.t=="util"?' selected':'')+'>Dia útil do mês</option></select><label class="mu">Qual dia (1 a 31)</label><input type="number" inputmode="numeric" min="1" max="31" value="'+r.d+'" oninput="edSet('+i+',\'d\',parseInt(this.value)||1)"></div>'}).join("")}
+function edSet(i,k,v){ED[i][k]=v}
+function edAdd(){ED.push({n:"",v:0,t:"dia",d:1,vv:false});edRender()}
+function edDel(i){ED.splice(i,1);edRender()}
+function edSave(){var out=[];ED.forEach(function(r){if(!(r.v>0))return;var d=Math.min(31,Math.max(1,r.d||1));out.push({n:(r.n||"").trim()||(r.vv?"Recebimento variável":"Salário"),v:r.v,t:r.t=="util"?"util":"dia",d:r.t=="util"?Math.min(d,22):d,vv:!!r.vv})});
+  S.rend=out;S.setup=true;save();$("setup").style.display="none";render()}
+function edSkip(){S.rend=S.rend||[];S.setup=true;save();$("setup").style.display="none";render()}
+var ED=[];
 var CONTA_NOME="";
-function setConta(name,msg){if(name)CONTA_NOME=name;$("conta").innerHTML='<div style="min-width:0"><b style="word-break:break-all">'+esc(CONTA_NOME||"Visitante")+'</b><div class="mu">'+msg+'</div></div><div style="text-align:right"><span class="pill">'+(UID?"\u2601\ufe0f Conta":"\ud83d\udcf1 Local")+'</span><br><button class="x" style="padding:6px 0 0;font-size:13px;color:var(--ac)" onclick="sair()">Sair</button></div>'}
+function setConta(name,msg){if(name)CONTA_NOME=name;$("conta").innerHTML='<div style="min-width:0"><b style="word-break:break-all">'+esc(CONTA_NOME||"Visitante")+'</b><div class="mu">'+msg+'</div></div><div style="text-align:right"><span class="pill">'+(UID?"\u2601\ufe0f Conta":"\ud83d\udcf1 Local")+'</span><br><button class="x" style="padding:6px 10px 0 0;font-size:13px;color:var(--ac)" onclick="abrirSetup()">Renda</button><button class="x" style="padding:6px 0 0;font-size:13px;color:var(--ac)" onclick="sair()">Sair</button></div>'}
 function authMsg(t){$("amsg").textContent=t}
 function trad(m){m=String(m||"");var T={"Invalid login credentials":"E-mail ou senha incorretos","Email not confirmed":"Confirme seu e-mail antes de entrar","User already registered":"Este e-mail j\u00e1 tem conta. Toque em Entrar"};
   if(T[m])return T[m];if(/at least 6/i.test(m))return"A senha precisa ter pelo menos 6 caracteres";if(/rate limit|too many/i.test(m))return"Muitas tentativas. Tente de novo em alguns minutos.";if(/valid email|invalid.*email/i.test(m))return"Digite um e-mail v\u00e1lido";return m}
@@ -439,8 +461,8 @@ async function iniciar(u){if(UID==u.id)return;UID=u.id;K="fin_v1_"+UID;S={g:[],i
   if(r.data&&r.data.data){S=r.data.data;S.g=S.g||[];S.i=S.i||[]}
   else{try{var l=localStorage.getItem(K);if(l)S=JSON.parse(l)}catch(e){}await SB.from("financas").upsert({user_id:UID,data:S})}
   $("auth").style.display="none";$("aem").value="";$("apw").value="";authMsg("");
-  setConta(u.email,"Sincronizado na sua conta. Seus dados s\u00e3o s\u00f3 seus.");render()}
-function desligar(){UID=null;S={g:[],i:[]};$("auth").style.display="flex";authMsg("");setConta("","");render()}
+  setConta(u.email,"Sincronizado na sua conta. Seus dados s\u00e3o s\u00f3 seus.");render();if(!S.setup)abrirSetup(true)}
+function desligar(){UID=null;S={g:[],i:[]};$("setup").style.display="none";$("auth").style.display="flex";authMsg("");setConta("","");render()}
 $("apw").addEventListener("keydown",function(e){if(e.key=="Enter")entrar()});
 if(!SB){authMsg("N\u00e3o foi poss\u00edvel carregar o login. Verifique sua conex\u00e3o e recarregue.")}
 else SB.auth.onAuthStateChange(function(ev,session){setTimeout(function(){if(session&&session.user)iniciar(session.user);else desligar()},0)});
