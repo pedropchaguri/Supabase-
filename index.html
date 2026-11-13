@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meu Dinheiro</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f6f7f9;--card:#fff;--tx:#14181f;--mu:#6b7280;--ln:#e5e7eb;--ac:#0f9d6b;--ac2:#e8f6f0;--rd:#e5484d;--am:#d98a00}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1116;--card:#171b22;--tx:#eef1f5;--mu:#98a1ae;--ln:#262c36;--ac:#2fd08f;--ac2:#14251f;--rd:#ff6b70;--am:#f0b429}}
+:root[data-theme="dark"]{--bg:#0e1116;--card:#171b22;--tx:#eef1f5;--mu:#98a1ae;--ln:#262c36;--ac:#2fd08f;--ac2:#14251f;--rd:#ff6b70;--am:#f0b429}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;max-width:480px;margin:0 auto;padding:16px 16px 96px}
+h1{font-size:20px;margin:4px 0 16px}h2{font-size:15px;margin:20px 0 8px;color:var(--mu);font-weight:600}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:16px;margin-bottom:12px}
+.big{font-size:32px;font-weight:700;letter-spacing:-.5px}.mu{color:var(--mu);font-size:13px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bar{height:10px;background:var(--ln);border-radius:9px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:var(--ac);border-radius:9px;transition:width .3s}
+input,select,button{font:inherit;color:var(--tx)}
+input,select{width:100%;padding:12px;border:1px solid var(--ln);border-radius:12px;background:var(--bg);margin-bottom:8px}
+.btn{width:100%;padding:13px;border:0;border-radius:12px;background:var(--ac);color:#fff;font-weight:600;cursor:pointer}
+html[data-theme="dark"] .btn,.btn{color:#04150e}
+.item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--ln)}
+.item:last-child{border:0}
+.x{background:none;border:0;color:var(--mu);font-size:20px;padding:4px 10px;cursor:pointer}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--ac2);color:var(--ac)}
+.tip{border-left:3px solid var(--ac);padding:2px 0 2px 12px;margin:12px 0}.tip b{display:block}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--ln);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav div{display:flex;width:100%;max-width:480px}
+nav button{flex:1;background:none;border:0;padding:14px 4px;color:var(--mu);font-size:13px;font-weight:600;cursor:pointer}
+nav button.on{color:var(--ac)}
+.sec{display:none}.sec.on{display:block}
+.neg{color:var(--rd)}.pos{color:var(--ac)}
+label.mu{display:block;margin:2px 0 4px}
+.sheet{width:100%;border-collapse:collapse;font-size:13px}
+.sheet th{text-align:left;color:var(--mu);font-weight:600;padding:8px 6px;border-bottom:1px solid var(--ln);white-space:nowrap}
+.sheet td{padding:8px 6px;border-bottom:1px solid var(--ln)}
+.sheet .n{text-align:right;white-space:nowrap}
+.sheet tbody tr:nth-child(even) td{background:var(--bg)}
+.sheet tfoot td{font-weight:700;border-bottom:0}
+input[type=date],select{-webkit-appearance:none;appearance:none;display:block;min-width:0;min-height:48px;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left;min-height:1.4em}
+.seg{display:flex;background:var(--ln);border-radius:12px;padding:4px;margin-bottom:4px}
+.seg button{flex:1;border:0;background:none;padding:10px;border-radius:9px;font-weight:600;color:var(--mu);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--tx)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal div{padding:10px 0;border-radius:10px;font-size:14px;position:relative}
+.cal .h{color:var(--mu);font-size:12px;padding:4px 0}
+.cal .pay{background:var(--ac);color:#04150e;font-weight:700}
+.cal .tod{outline:2px solid var(--tx)}
+.cal .dot::after{content:"";position:absolute;bottom:3px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--rd)}
+nav button{flex:1 1 0!important;font-size:26px!important;line-height:1;padding:16px 0!important;opacity:.45;filter:grayscale(.4)}
+nav button.on{opacity:1;filter:none}
+nav div{overflow-x:auto}
+.res{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--ln)}
+.win{background:var(--ac2);border-radius:12px;padding:12px;margin-top:10px}
+</style>
+<meta name="theme-color" content="#0f9d6b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div id="auth" style="position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto">
+  <div class="card" style="width:100%;max-width:380px;margin:0">
+    <h1 style="margin:0 0 4px">💰 Meu Dinheiro</h1>
+    <div class="mu" style="margin-bottom:16px">Entre ou crie sua conta para guardar seus dados com segurança.</div>
+    <label class="mu">E-mail</label><input id="aem" type="email" autocomplete="email" inputmode="email">
+    <label class="mu">Senha (mínimo 6 caracteres)</label><input id="apw" type="password" autocomplete="current-password">
+    <button class="btn" onclick="entrar()">Entrar</button>
+    <button class="btn" style="margin-top:8px;background:var(--ln);color:var(--tx)" onclick="criar()">Criar conta</button>
+    <div id="amsg" class="mu" style="margin-top:12px;min-height:20px">Carregando...</div>
+  </div>
+</div>
+
+<h1>💰 Meu Dinheiro <span class="mu" id="mes"></span></h1>
+<div class="card row" id="conta"></div>
+
+<section class="sec on" id="s-home">
+  <div class="card">
+    <div class="mu">Minha carteira</div>
+    <div class="big" id="saldo">R$ 0,00</div>
+    <div id="resumo" style="margin-top:8px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">
+      <button class="btn" id="rb0" onclick="receber(0)"></button>
+      <button class="btn" id="rb1" onclick="receber(1)"></button>
+      <input id="sw" type="number" inputmode="decimal" step="0.01" placeholder="Valor (R$)" style="grid-column:1/-1;margin:0">
+      <button class="btn" style="background:var(--ln);color:var(--tx)" onclick="somarSaldo()">Somar à carteira</button>
+      <button class="btn" style="background:var(--ln);color:var(--tx)" onclick="ajustarSaldo()">Definir saldo</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row"><b>Limite de R$ 200</b><span class="mu" id="limTxt"></span></div>
+    <div class="bar"><i id="limBar"></i></div>
+    <div class="mu" id="limMsg"></div>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="mu">Entradas</div><b id="ent">R$ 1.320,00</b><div class="mu" id="entd"></div></div>
+    <div class="card"><div class="mu">Investido</div><b id="inv">R$ 0,00</b><div class="mu">total guardado</div></div>
+  </div>
+  <h2>POSSO COMPRAR?</h2>
+  <div class="card">
+    <input id="pc" type="number" inputmode="decimal" step="0.01" placeholder="Valor da compra (R$)" oninput="calcPosso()">
+    <div id="pcRes"></div>
+  </div>
+  <h2>PRÓXIMOS RECEBIMENTOS</h2>
+  <div class="card" id="prox"></div>
+  <h2>ÚLTIMOS GASTOS</h2>
+  <div class="card" id="ult"></div>
+</section>
+
+<section class="sec" id="s-gastos">
+  <div class="seg"><button class="on" id="tg-var" onclick="tabG('var')">Variáveis</button><button id="tg-fix" onclick="tabG('fix')">Fixos</button></div>
+  <div id="gv-var">
+  <h2>NOVO GASTO</h2>
+  <div class="card">
+    <input id="gd" placeholder="Descrição (ex: lanche)">
+    <input id="gv" type="number" inputmode="decimal" step="0.01" placeholder="Valor (R$)">
+    <select id="gc"><option>Alimentação</option><option>Transporte</option><option>Lazer</option><option>Compras</option><option>Contas</option><option>Outros</option></select>
+    <select id="gm"><option value="pix">Pix / Débito</option><option value="cred">Crédito</option></select>
+    <label class="mu">Data do gasto</label><input id="gdt" type="date">
+    <button class="btn" onclick="addG()">Adicionar gasto</button>
+  </div>
+  <h2>TODOS OS GASTOS</h2>
+  <div class="card" id="listaG"></div>
+  </div>
+  <div id="gv-fix" style="display:none">
+    <h2>NOVO GASTO FIXO</h2>
+    <div class="card">
+      <input id="fd" placeholder="Descrição (ex: aluguel, internet)">
+      <input id="fv" type="number" inputmode="decimal" step="0.01" placeholder="Valor mensal (R$)">
+      <input id="fdia" type="number" inputmode="numeric" min="1" max="31" placeholder="Dia do vencimento (1 a 31)">
+      <label class="mu" style="display:flex;align-items:center;gap:8px;margin:4px 0 10px"><input id="fauto" type="checkbox" checked style="width:auto;margin:0"> Descontar da carteira automaticamente no vencimento</label>
+      <button class="btn" onclick="addF()">Adicionar gasto fixo</button>
+    </div>
+    <h2>MEUS GASTOS FIXOS</h2>
+    <div class="card" id="listaF"></div>
+    <div class="mu">Os gastos fixos são descontados do saldo do mês, mas não entram na barra do limite.</div>
+  </div>
+</section>
+
+<section class="sec" id="s-inv">
+  <h2>QUANTO GUARDAR EM CADA PAGAMENTO</h2>
+  <div class="card">
+    <label class="mu">Porcentagem de cada pagamento para guardar (%)</label>
+    <input id="pct" type="number" inputmode="decimal" step="1" min="0" max="100" oninput="setPct()">
+    <div id="guardar"></div>
+  </div>
+  <h2>MEUS INVESTIMENTOS</h2>
+  <div class="card" id="listaI"></div>
+  <h2>ADICIONAR / ATUALIZAR</h2>
+  <div class="card">
+    <input id="in" placeholder="Nome (ex: Tesouro Selic)">
+    <input id="iv" type="number" inputmode="decimal" step="0.01" placeholder="Valor atual (R$)">
+    <button class="btn" onclick="addI()">Salvar investimento</button>
+  </div>
+  <h2>SUGESTÕES PARA VOCÊ</h2>
+  <div class="card" id="sug"></div>
+  <div class="mu">Conteúdo educativo, não é recomendação financeira. Confira as taxas atuais antes de investir.</div>
+</section>
+
+<section class="sec" id="s-metas">
+  <h2>NOVA META</h2>
+  <div class="card">
+    <label class="mu">Nome da meta</label><input id="mn" placeholder="Ex: celular novo, reserva de emergência">
+    <label class="mu">Valor total (R$)</label><input id="mv" type="number" inputmode="decimal" step="0.01">
+    <label class="mu">Já guardado (R$)</label><input id="mg" type="number" inputmode="decimal" step="0.01" value="0">
+    <label class="mu">Prazo (meses)</label><input id="mp" type="number" inputmode="numeric" value="6">
+    <label class="mu">Rendimento estimado (% ao mês, 0 para ignorar)</label><input id="mr" type="number" step="0.01" value="0.8">
+    <button class="btn" onclick="addM()">Criar meta</button>
+  </div>
+  <h2>MINHAS METAS</h2>
+  <div id="listaM"></div>
+</section>
+
+<section class="sec" id="s-lim" hidden>
+  <h2>MEU CARTÃO</h2>
+  <div class="card" id="cartao"></div>
+  <h2>CRÉDITO OU PIX?</h2>
+  <div class="card">
+    <label class="mu">Valor da compra (R$)</label><input id="lv" type="number" inputmode="decimal" step="0.01" oninput="calcLim()">
+    <label class="mu">Data da compra</label><input id="ldt" type="date" oninput="calcLim()">
+    <label class="mu">Parcelas no crédito</label><input id="lp" type="number" inputmode="numeric" value="1" oninput="calcLim()">
+    <label class="mu">Juros do parcelamento (% ao mês, 0 = sem juros)</label><input id="lj" type="number" step="0.01" value="0" oninput="calcLim()">
+    <label class="mu">Desconto no Pix (%)</label><input id="ld" type="number" step="0.01" value="0" oninput="calcLim()">
+    <label class="mu">Rendimento do seu dinheiro (% ao mês)</label><input id="lr" type="number" step="0.01" value="0.8" oninput="calcLim()">
+  </div>
+  <div class="card" id="limRes"></div>
+</section>
+
+<section class="sec" id="s-cal">
+  <h2>CALENDÁRIO</h2>
+  <div class="card">
+    <div class="row" style="margin-bottom:8px"><button class="x" onclick="calMove(-1)">‹</button><b id="calT" style="text-transform:capitalize"></b><button class="x" onclick="calMove(1)">›</button></div>
+    <div class="cal" id="calG"></div>
+  </div>
+  <div class="card" id="calL"></div>
+  <div class="mu">🟩 dias de recebimento · 🔴 vencimento de gastos fixos</div>
+</section>
+
+<section class="sec" id="s-plan">
+  <h2>PLANILHA DE GASTOS VARIÁVEIS</h2>
+  <div class="card">
+    <div class="row" style="margin-bottom:8px"><button class="x" onclick="planMove(-1)">‹</button><b id="plT" style="text-transform:capitalize"></b><button class="x" onclick="planMove(1)">›</button></div>
+    <div class="grid"><div><div class="mu">Total do mês</div><b id="plTot"></b></div><div><div class="mu">Média por dia</div><b id="plMed"></b></div></div>
+  </div>
+  <div class="card" style="padding:8px"><div style="overflow-x:auto"><table class="sheet" id="plTab"></table></div></div>
+  <h2>POR CATEGORIA</h2>
+  <div class="card" id="plCat"></div>
+  <h2>GRÁFICO DE PIZZA</h2>
+  <div class="card" id="plPie"></div>
+</section>
+
+<nav><div>
+  <button class="on" data-t="home" aria-label="Início">🏠</button>
+  <button data-t="gastos" aria-label="Gastos">💸</button>
+  <button data-t="inv" aria-label="Investir">📈</button>
+  <button data-t="metas" aria-label="Metas">🎯</button>
+  
+  <button data-t="cal" aria-label="Calendário">📅</button>
+  <button data-t="plan" aria-label="Planilha">📊</button>
+</div></nav>
+
+<script>
+var RENDA=[{n:"5º dia útil",v:880},{n:"Dia 20",v:440}],LIM=200,K="fin_v1",TOT=RENDA[0].v+RENDA[1].v;
+var S={g:[],i:[]};
+var SB=window.supabase?supabase.createClient("https://tiaoatcjqmgjanluriqi.supabase.co","sb_publishable_Dr7BJsHp1WpzeAH-kXeEDA_hJMt4nTV"):null,UID=null,saveT=null;
+function save(){try{if(UID)localStorage.setItem(K,JSON.stringify(S))}catch(e){}
+  if(UID&&SB){clearTimeout(saveT);saveT=setTimeout(function(){SB.from("financas").upsert({user_id:UID,data:S,updated_at:new Date().toISOString()}).then(function(r){if(r.error)setConta("","\u26a0\ufe0f N\u00e3o foi poss\u00edvel sincronizar agora")})},500)}}
+function $(i){return document.getElementById(i)}
+function R(v){return "R$ "+Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var now=new Date(),ym=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+function quintoUtil(y,m){var d=new Date(y,m,1),c=0;while(true){var w=d.getDay();if(w>0&&w<6){c++;if(c==5)return d}d.setDate(d.getDate()+1)}}
+function fmtD(d){return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"short"})}
+function proximo(){var y=now.getFullYear(),m=now.getMonth(),t=new Date(y,m,now.getDate());
+  var a=quintoUtil(y,m),b=new Date(y,m,20),out=[];
+  [[a,RENDA[0].v,"5º dia útil"],[b,RENDA[1].v,"Dia 20"]].forEach(function(x){var d=x[0];if(d<t){d=x[2]=="Dia 20"?new Date(y,m+1,20):quintoUtil(y,m+1)}out.push({d:d,v:x[1],n:x[2]})});
+  return out.sort(function(p,q){return p.d-q.d})}
+function render(){autoFix();
+  $("mes").textContent=now.toLocaleDateString("pt-BR",{month:"long"});
+  var mg=S.g.filter(function(x){return x.d.slice(0,7)==ym}),tg=mg.reduce(function(a,x){return a+x.v},0);
+  var ti=S.i.reduce(function(a,x){return a+x.v},0),ent=RENDA.reduce(function(a,x){return a+x.v},0),fx=(S.f||[]).reduce(function(a,x){return a+x.v},0),sal=S.w||0;
+  $("saldo").textContent=R(sal);$("saldo").className="big "+(sal<0?"neg":"");
+  $("resumo").textContent="Gastos no mês: "+R(tg)+" · Fixos: "+R(fx);
+  $("ent").textContent=R(ent);$("entd").textContent=R(RENDA[0].v)+" + "+R(RENDA[1].v);$("inv").textContent=R(ti);
+  var p=Math.min(100,tg/LIM*100);$("limBar").style.width=p+"%";$("limBar").style.background=p>=100?"var(--rd)":p>=70?"var(--am)":"var(--ac)";
+  $("limTxt").textContent=R(tg)+" / "+R(LIM);
+  $("limMsg").textContent=tg>LIM?"Você passou do limite em "+R(tg-LIM):"Ainda restam "+R(LIM-tg)+" do limite";
+  $("prox").innerHTML=proximo().map(function(x){return '<div class="item"><div><b>'+x.n+'</b><div class="mu">'+fmtD(x.d)+'</div></div><b class="pos">+ '+R(x.v)+'</b></div>'}).join("");
+  var L=S.g.slice().sort(function(a,b){return b.d.localeCompare(a.d)});
+  function row(x,del){return '<div class="item"><div><b>'+esc(x.t)+'</b><div class="mu"><span class="pill">'+esc(x.c)+'</span> '+(x.m=="cred"?'<span class="pill">Crédito'+(x.pago?' · pago':'')+'</span> ':'')+x.d.split("-").reverse().join("/")+'</div></div><div><b>'+R(x.v)+'</b>'+(del?'<button class="x" onclick="delG('+x.id+')">×</button>':'')+'</div></div>'}
+  $("ult").innerHTML=L.slice(0,3).map(function(x){return row(x,false)}).join("")||'<div class="mu">Nenhum gasto ainda.</div>';
+  $("listaG").innerHTML=L.map(function(x){return row(x,true)}).join("")||'<div class="mu">Nenhum gasto ainda.</div>';
+  $("listaI").innerHTML=S.i.map(function(x,k){return '<div class="item"><div><b>'+esc(x.n)+'</b></div><div><b>'+R(x.v)+'</b><button class="x" onclick="editI('+k+')">✎</button><button class="x" onclick="delI('+k+')">×</button></div></div>'}).join("")||'<div class="mu">Nenhum investimento cadastrado.</div>';
+  sugestoes(sal,ti,tg);renderMetas();calcLim();renderFixos();renderCal();renderWallet();calcPosso();renderCartao();renderPlan();renderPie();renderGuardar();
+}
+function sugestoes(sal,ti,tg){
+  var pc=PCT()/100,meta=Math.round(TOT*pc),T=[];
+  T.push(["Comece pela reserva de emergência","Com renda de "+R(TOT)+", uma reserva de 3 a 6 meses seria de "+R(TOT*3)+" a "+R(TOT*6)+". Vale guardar aos poucos em Tesouro Selic ou CDB com liquidez diária (100% do CDI), onde o dinheiro rende e você saca quando precisar."]);
+  T.push(["Meta de "+R(meta)+" por mês","A regra 50/30/20 sugere guardar uma parte da renda (você definiu "+PCT()+"%). Como você recebe em duas datas, separe uma parte assim que cada pagamento cair: "+R(RENDA[0].v*pc)+" dos "+R(RENDA[0].v)+" e "+R(RENDA[1].v*pc)+" dos "+R(RENDA[1].v)+"."]);
+  if(tg>LIM*0.7)T.push(["Atenção ao limite","Você já usou "+Math.round(tg/LIM*100)+"% do limite de R$ 200. Segurar os gastos agora libera mais dinheiro para investir."]);
+  if(sal>0&&ti<TOT*3)T.push(["Na carteira: "+R(sal),"Se sobrar no fim do mês, mover pelo menos metade para a reserva ajuda a criar o hábito. Cofrinhos de bancos digitais com rendimento diário também servem para começar."]);
+  if(ti>=TOT*3)T.push(["Reserva completa","Com a reserva pronta, dá para estudar investimentos de prazo maior, como Tesouro IPCA+ ou fundos de índice, sempre diversificando."]);
+  $("sug").innerHTML=T.map(function(t){return '<div class="tip"><b>'+t[0]+'</b><span class="mu">'+t[1]+'</span></div>'}).join("");
+}
+function pmt(V,g,n,r){r=r/100;if(r==0)return Math.max(0,(V-g)/n);var f=Math.pow(1+r,n);return Math.max(0,(V-g*f)*r/(f-1))}
+function addM(){var t=$("mn").value.trim(),v=parseFloat($("mv").value),g=parseFloat($("mg").value)||0,n=parseInt($("mp").value),r=parseFloat($("mr").value)||0;
+  if(!t||!(v>0)||!(n>0)){alert("Preencha nome, valor e prazo");return}
+  S.m=S.m||[];S.m.push({t:t,v:v,g:g,n:n,r:r});save();$("mn").value="";$("mv").value="";render()}
+function delM(k){S.m.splice(k,1);save();render()}
+function addAporte(k){var el=$("ap"+k),a=el?parseFloat(el.value):NaN;if(!(a>0)){toast("Digite quanto você guardou");return}S.m[k].g+=a;save();render()}
+function renderMetas(){S.m=S.m||[];var ent=TOT,tot=0;
+  var h=S.m.map(function(m,k){var need=pmt(m.v,m.g,m.n,m.r),pc=Math.min(100,m.g/m.v*100),pct=need/ent*100;tot+=need;
+    return '<div class="card"><div class="row"><b>'+esc(m.t)+'</b><button class="x" onclick="delM('+k+')">×</button></div><div class="mu">Meta '+R(m.v)+' em '+m.n+' meses · guardado '+R(m.g)+' ('+pc.toFixed(0)+'%)</div><div class="bar"><i style="width:'+pc+'%"></i></div><div class="big" style="font-size:24px">'+R(need)+'<span class="mu"> /mês</span></div><div class="mu">≈ '+R(need/2)+' a cada recebimento · '+pct.toFixed(0)+'% da renda'+(pct>30?' · 🔴 puxado, considere aumentar o prazo':pct>20?' · 🟡 exige disciplina':' · 🟢 tranquilo')+'</div><div class="row" style="margin-top:8px"><input id="ap'+k+'" type="number" inputmode="decimal" step="0.01" placeholder="Valor guardado (R$)" style="margin:0"><button class="btn" style="width:auto;padding:12px 16px" onclick="addAporte('+k+')">Guardar</button></div></div>'}).join("");
+  var head=S.m.length?'<div class="card"><div class="mu">Total para todas as metas</div><div class="big" style="font-size:24px">'+R(tot)+'<span class="mu"> /mês</span></div><div class="mu">'+(tot/ent*100).toFixed(0)+'% da sua renda de '+R(ent)+(tot>ent*0.5?' · 🔴 acima do que sobra com folga':' · cabe no orçamento')+'</div></div>':'';
+  $("listaM").innerHTML=head+(h||'<div class="card mu">Nenhuma meta ainda. Crie uma acima e veja quanto precisa guardar por mês.</div>')}
+function calcLimOld(){var o=$("limRes");if(!o)return;
+  var V=parseFloat($("lv").value),n=Math.max(1,parseInt($("lp").value)||1),j=(parseFloat($("lj").value)||0)/100,d=(parseFloat($("ld").value)||0)/100,r=(parseFloat($("lr").value)||0)/100;
+  if(!(V>0)){o.innerHTML='<div class="mu">Digite o valor da compra para comparar.</div>';return}
+  var pix=V*(1-d),pm=(n==1||j==0)?V/n:V*j/(1-Math.pow(1+j,-n)),tot=pm*n,pv=0;
+  for(var k=1;k<=n;k++)pv+=pm/Math.pow(1+r,k);
+  var tg=S.g.filter(function(x){return x.d.slice(0,7)==ym}).reduce(function(a,x){return a+x.v},0),rest=LIM-tg,diff=Math.abs(pv-pix),cred=pv<pix;
+  var msg=cred?'💳 <b>Crédito compensa</b>: em valor de hoje você paga '+R(diff)+' a menos, desde que o dinheiro fique rendendo até as parcelas.':'⚡ <b>Pix compensa</b>: você economiza cerca de '+R(diff)+' em valor de hoje.';
+  if(Math.abs(pv-pix)<0.01)msg='🤝 <b>Empate</b>: sem diferença de custo. Prefira o Pix para não comprometer renda futura.';
+  var lim=V>rest?'<div class="res"><span>Limite de '+R(LIM)+'</span><b class="neg">Não cabe (restam '+R(Math.max(0,rest))+')</b></div>':'<div class="res"><span>Limite de '+R(LIM)+'</span><b class="pos">Cabe (restam '+R(rest)+')</b></div>';
+  o.innerHTML='<div class="res"><span>Pix hoje</span><b>'+R(pix)+'</b></div><div class="res"><span>Crédito</span><b>'+n+'x de '+R(pm)+'</b></div><div class="res"><span>Total no crédito</span><b>'+R(tot)+'</b></div><div class="res"><span>Crédito em valor de hoje</span><b>'+R(pv)+'</b></div><div class="res"><span>Parcela na sua renda</span><b>'+(pm/TOT*100).toFixed(1)+'%</b></div>'+lim+'<div class="win">'+msg+'</div><div class="mu" style="margin-top:8px">Valor de hoje considera o rendimento informado. Parcelas aumentam seus compromissos futuros, então use só se couber com folga.</div>'}
+function tabG(t){$("gv-var").style.display=t=="var"?"block":"none";$("gv-fix").style.display=t=="fix"?"block":"none";$("tg-var").className=t=="var"?"on":"";$("tg-fix").className=t=="fix"?"on":""}
+function addF(){var t=$("fd").value.trim(),v=parseFloat($("fv").value),dia=parseInt($("fdia").value)||1;
+  if(!t||!(v>0)||dia<1||dia>31){alert("Preencha descrição, valor e um dia entre 1 e 31");return}
+  S.f=S.f||[];var au=$("fauto").checked,pas=au&&dueOf(now.getFullYear(),now.getMonth(),{dia:dia})<=hoje();S.f.push({id:Date.now(),t:t,v:v,dia:dia,auto:au,ult:pas?ym:ymd(new Date(now.getFullYear(),now.getMonth()-1,1)).slice(0,7),paid:pas?ym:""});save();$("fd").value="";$("fv").value="";$("fdia").value="";render()}
+function delF(id){S.f=S.f.filter(function(x){return x.id!=id});save();render()}
+function renderFixos(){S.f=S.f||[];var t=S.f.reduce(function(a,x){return a+x.v},0);
+  $("listaF").innerHTML=(S.f.length?'<div class="res"><span>Total fixo por mês</span><b>'+R(t)+'</b></div>':'')+S.f.slice().sort(function(a,b){return a.dia-b.dia}).map(function(x){return '<div class="item"><div><b>'+esc(x.t)+'</b><div class="mu">Vence dia '+x.dia+(x.auto?' · automático':'')+(x.paid==ym?' · pago ✓':'')+'</div><button class="x" style="padding:0;font-size:12px;color:var(--ac)" onclick="autoF('+x.id+')">'+(x.auto?'desativar automático':'ativar automático')+'</button></div><div><b>'+R(x.v)+'</b>'+(x.paid==ym||x.auto?'':'<button class="x" style="font-size:13px;color:var(--ac)" onclick="payF('+x.id+')">Paguei</button>')+'<button class="x" onclick="delF('+x.id+')">×</button></div></div>'}).join("")||'<div class="mu">Nenhum gasto fixo ainda.</div>'}
+var CM=new Date(now.getFullYear(),now.getMonth(),1);
+function calMove(d){CM=new Date(CM.getFullYear(),CM.getMonth()+d,1);renderCal()}
+function renderCal(){var y=CM.getFullYear(),m=CM.getMonth(),first=new Date(y,m,1).getDay(),dias=new Date(y,m+1,0).getDate(),q=quintoUtil(y,m).getDate(),fx={},h="";
+  (S.f||[]).forEach(function(f){var d=Math.min(f.dia,dias);fx[d]=(fx[d]||0)+f.v});
+  ["D","S","T","Q","Q","S","S"].forEach(function(s){h+='<div class="h">'+s+'</div>'});
+  for(var i=0;i<first;i++)h+='<div></div>';
+  for(var d=1;d<=dias;d++){var c="";if(d==q||d==20)c+=" pay";if(fx[d])c+=" dot";if(y==now.getFullYear()&&m==now.getMonth()&&d==now.getDate())c+=" tod";h+='<div class="'+c+'">'+d+'</div>'}
+  $("calG").innerHTML=h;$("calT").textContent=CM.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
+  $("calL").innerHTML='<div class="res"><span>🟩 Dia '+q+' (5º dia útil)</span><b class="pos">+ '+R(RENDA[0].v)+'</b></div><div class="res"><span>🟩 Dia 20</span><b class="pos">+ '+R(RENDA[1].v)+'</b></div>'+Object.keys(fx).sort(function(a,b){return a-b}).map(function(d){return '<div class="res"><span>🔴 Dia '+d+' · fixos</span><b>'+R(fx[d])+'</b></div>'}).join("")}
+function dueOf(y,m,f){return new Date(y,m,Math.min(f.dia,new Date(y,m+1,0).getDate()))}
+function carteira(){var t=new Date(now.getFullYear(),now.getMonth(),now.getDate()),np=proximo()[0].d,dias=Math.max(1,Math.round((np-t)/864e5)),res=0;
+  (S.f||[]).forEach(function(f){var d=dueOf(t.getFullYear(),t.getMonth(),f);if(f.paid==ym)d=dueOf(t.getFullYear(),t.getMonth()+1,f);if(d<np)res+=f.v});
+  faturas().forEach(function(f){if(f.due<np)res+=f.total});
+  var w=S.w||0,disp=w-res;return{w:w,res:res,disp:disp,dias:dias,dia:disp/dias,np:np}}
+function renderWallet(){var c=carteira();
+  $("saldo").textContent=R(c.w);$("saldo").className="big "+(c.w<0?"neg":"");
+  $("resumo").innerHTML='<div class="res"><span>Reservado (fixos e fatura)</span><b>'+R(c.res)+'</b></div><div class="res"><span>Disponível até '+fmtD(c.np)+'</span><b class="'+(c.disp<0?'neg':'pos')+'">'+R(c.disp)+'</b></div><div class="res"><span>Pode gastar por dia ('+c.dias+(c.dias==1?' dia':' dias')+')</span><b>'+R(Math.max(0,c.dia))+'</b></div>';
+  $("rb0").textContent="Recebi "+R(RENDA[0].v);$("rb1").textContent="Recebi "+R(RENDA[1].v)}
+function toast(t,undo){var e=$("toast");if(!e){e=document.createElement("div");e.id="toast";e.style.cssText="position:fixed;left:16px;right:16px;bottom:calc(86px + env(safe-area-inset-bottom,0px));max-width:448px;margin:0 auto;background:var(--tx);color:var(--bg);padding:12px 16px;border-radius:12px;z-index:20;justify-content:space-between;gap:12px;align-items:center;font-size:14px";document.body.appendChild(e)}
+  e.innerHTML="";var s=document.createElement("span");s.textContent=t;e.appendChild(s);
+  if(undo){var b=document.createElement("button");b.textContent="Desfazer";b.style.cssText="background:none;border:0;color:inherit;font-weight:700;text-decoration:underline;font-size:14px;cursor:pointer";b.onclick=function(){undo();e.style.display="none"};e.appendChild(b)}
+  e.style.display="flex";clearTimeout(window._tt);window._tt=setTimeout(function(){e.style.display="none"},4500)}
+window.alert=function(m){toast(m)};
+function receber(k){var v=RENDA[k].v;S.w=(S.w||0)+v;save();render();toast("Adicionado "+R(v)+" à carteira",function(){S.w=(S.w||0)-v;save();render()})}
+function somarSaldo(){var v=parseFloat($("sw").value);if(!(v>0)){toast("Digite um valor maior que zero");return}S.w=(S.w||0)+v;$("sw").value="";save();render();toast("Adicionado "+R(v)+" à carteira",function(){S.w=(S.w||0)-v;save();render()})}
+function ajustarSaldo(){var v=parseFloat($("sw").value);if(isNaN(v)){toast("Digite o valor que você tem agora");return}var ant=S.w||0;S.w=v;$("sw").value="";save();render();toast("Saldo definido em "+R(v),function(){S.w=ant;save();render()})}
+function payF(id){var f=S.f.find(function(x){return x.id==id});if(!f)return;f.paid=ym;S.w=(S.w||0)-f.v;save();render()}
+function recebidoMes(){var t=hoje(),y=t.getFullYear(),m=t.getMonth(),s=0;[quintoUtil(y,m),new Date(y,m,20)].forEach(function(d,k){if(d<=t)s+=RENDA[k].v});return s}
+function mediaVar(){var t=new Date(now.getFullYear(),now.getMonth(),now.getDate()),ini=new Date(t.getTime()-30*864e5),tot=0,min=null;
+  S.g.forEach(function(x){var d=new Date(x.d+"T00:00:00");if(d>=ini&&d<=t){tot+=x.v;if(!min||d<min)min=d}});
+  if(!min)return 0;var span=Math.min(30,Math.max(7,Math.round((t-min)/864e5)+1));return tot/span}
+function calcPosso(){var o=$("pcRes");if(!o)return;var V=parseFloat($("pc").value);
+  if(!(V>0)){o.innerHTML='<div class="mu">Digite o valor para saber se cabe até o seu próximo recebimento.</div>';return}
+  var c=carteira(),m=mediaVar(),esp=m*c.dias,gu=Math.max(0,c.w)*0.1,folga=c.w-c.res-esp-gu,sobra=folga-V,msg,cor;
+  if(sobra<0){cor="neg";msg="🔴 NÃO POSSO: faltariam "+R(-sobra)}
+  else if(sobra<Math.max(30,folga*0.2)){cor="";msg="🟡 CONSIGO, MAS VOU FICAR COM POUCO: sobram "+R(sobra)}
+  else{cor="pos";msg="🟢 POSSO, E AINDA SOBRA "+R(sobra)}
+  var tg=S.g.filter(function(x){return x.d.slice(0,7)==ym}).reduce(function(a,x){return a+x.v},0);
+  o.innerHTML='<div class="win"><b class="'+cor+'">'+msg+'</b>'+(sobra>0?'<div class="mu">≈ '+R(sobra/c.dias)+' por dia até '+fmtD(c.np)+'</div>':'')+'</div>'+
+    '<div class="res"><span>Na carteira</span><b>'+R(c.w)+'</b></div>'+
+    '<div class="res"><span>Fixos e fatura até '+fmtD(c.np)+'</span><b>- '+R(c.res)+'</b></div>'+
+    '<div class="res"><span>Variáveis esperados ('+R(m)+'/dia × '+c.dias+')</span><b>- '+R(esp)+'</b></div>'+
+    '<div class="res"><span>Guardar 10% da carteira ('+R(c.w)+')</span><b>- '+R(gu)+'</b></div>'+
+    '<div class="res"><span>Esta compra</span><b>- '+R(V)+'</b></div>'+
+    '<div class="res"><span>Sobra</span><b class="'+(sobra<0?'neg':'')+'">'+R(sobra)+'</b></div>'+
+    (tg+V>LIM?'<div class="mu" style="margin-top:8px">Atenção: com essa compra seus gastos do mês chegam a '+R(tg+V)+', acima do limite de '+R(LIM)+'.</div>':'')+
+    '<div class="mu" style="margin-top:8px">Estimativa com base nos seus gastos dos últimos 30 dias.</div>'}
+var FECHA=16,VENCE=23;
+function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function pd(s){return new Date(s+"T00:00:00")}
+function hoje(){return new Date(now.getFullYear(),now.getMonth(),now.getDate())}
+function dueDe(d){return new Date(d.getFullYear(),d.getDate()<=FECHA?d.getMonth():d.getMonth()+1,VENCE)}
+function faturas(){var o={};(S.g||[]).forEach(function(x){if(x.m!="cred"||x.pago)return;var d=dueDe(pd(x.d)),k=d.getTime();(o[k]=o[k]||{due:d,total:0,ids:[]}).total+=x.v;o[k].ids.push(x.id)});return Object.keys(o).map(function(k){return o[k]}).sort(function(a,b){return a.due-b.due})}
+function usadoLim(){return faturas().reduce(function(a,f){return a+f.total},0)}
+function saldoEm(due){var t=hoje(),w=S.w||0,rec=0,fix=0,fat=0;
+  for(var i=0;i<=24;i++){var y=t.getFullYear(),m=t.getMonth()+i;if(new Date(y,m,1)>due)break;
+    [quintoUtil(y,m),new Date(y,m,20)].forEach(function(d,k){if(d>t&&d<=due)rec+=RENDA[k].v});
+    (S.f||[]).forEach(function(f){var d=dueOf(y,m,f);if(d<=due&&!(i==0&&f.paid==ym)&&(d>=t||i==0))fix+=f.v})}
+  faturas().forEach(function(f){if(f.due<=due)fat+=f.total});
+  var dias=Math.max(0,Math.round((due-t)/864e5)),vr=mediaVar()*dias;
+  return{w:w,rec:rec,fix:fix,fat:fat,vr:vr,dias:dias,base:w+rec-fix-fat-vr}}
+function renderCartao(){var u=usadoLim(),f=faturas(),t=hoje(),fe=new Date(t.getFullYear(),t.getMonth(),FECHA);if(fe<t)fe=new Date(t.getFullYear(),t.getMonth()+1,FECHA);var dc=Math.round((fe-t)/864e5);
+  $("cartao").innerHTML='<div class="row"><b>Limite de '+R(LIM)+'</b><span class="mu">fecha dia '+FECHA+' · vence dia '+VENCE+'</span></div><div class="bar"><i style="width:'+Math.min(100,u/LIM*100)+'%"></i></div><div class="mu">Usado '+R(u)+' · livre '+R(Math.max(0,LIM-u))+'</div><div class="mu">'+(dc==0?'A fatura fecha hoje':'Fecha em '+dc+(dc==1?' dia':' dias')+' ('+fmtD(fe)+')')+'</div>'+f.map(function(x,i){return '<div class="item"><div><b>Fatura de '+fmtD(x.due)+'</b><div class="mu">'+x.ids.length+' compra(s)</div></div><div><b>'+R(x.total)+'</b><button class="x" style="font-size:13px;color:var(--ac)" onclick="payFat('+i+')">Paguei</button></div></div>'}).join("")}
+function payFat(i){var f=faturas()[i];if(!f)return;var set=function(v){S.g.forEach(function(x){if(f.ids.indexOf(x.id)>=0)x.pago=v})};set(true);S.w=(S.w||0)-f.total;save();render();toast("Fatura de "+fmtD(f.due)+" paga: "+R(f.total),function(){set(false);S.w=(S.w||0)+f.total;save();render()})}
+function calcLim(){var o=$("limRes");if(!o)return;
+  var V=parseFloat($("lv").value),n=Math.max(1,parseInt($("lp").value)||1),j=(parseFloat($("lj").value)||0)/100,dp=(parseFloat($("ld").value)||0)/100,r=(parseFloat($("lr").value)||0)/100,t=hoje(),dt=$("ldt").value?pd($("ldt").value):t;
+  if(!(V>0)){o.innerHTML='<div class="mu">Digite o valor da compra para ver se vale pagar no crédito.</div>';return}
+  var ref=dt>t?dt:t,pix=V*(1-dp),pm=(n==1||j==0)?V/n:V*j/(1-Math.pow(1+j,-n)),tot=pm*n,due=dueDe(dt),pv=0;
+  for(var k=0;k<n;k++){var dk=new Date(due.getFullYear(),due.getMonth()+k,VENCE);pv+=pm/Math.pow(1+r,Math.max(0,Math.round((dk-ref)/864e5))/30)}
+  var dias=Math.max(0,Math.round((due-ref)/864e5)),s=saldoEm(due),sobra=s.base-pm,livre=LIM-usadoLim(),dif=pv-pix,msg,cor="";
+  if(tot>livre+0.001){cor="neg";msg="🔴 NÃO CABE NO LIMITE: faltam "+R(tot-livre)+" de limite livre"}
+  else if(sobra<0){cor="neg";msg="🔴 NÃO PAGUE NO CRÉDITO: em "+fmtD(due)+" faltariam "+R(-sobra)}
+  else if(dif>0.005){msg="🟡 CABE, MAS O PIX COMPENSA MAIS: economiza "+R(dif)+" em valor de hoje"}
+  else if(sobra<Math.max(30,V*0.5)){msg="🟡 DÁ PARA PAGAR NO CRÉDITO, MAS VAI SOBRAR POUCO em "+fmtD(due)+": "+R(sobra)}
+  else{cor="pos";msg="🟢 PAGUE NO CRÉDITO: sobram "+R(sobra)+" em "+fmtD(due)+" e o dinheiro rende por "+dias+" dias"}
+  var tip;if(dt.getDate()<=FECHA){var n17=new Date(dt.getFullYear(),dt.getMonth(),FECHA+1),dd=Math.round((dueDe(n17)-due)/864e5);tip='💡 Comprando a partir do dia '+(FECHA+1)+' ('+fmtD(n17)+'), a fatura só vence em '+fmtD(dueDe(n17))+': '+dd+' dias a mais para pagar.'}
+  else tip='💡 Compra depois do fechamento: entra na fatura que vence em '+fmtD(due)+'.';
+  o.innerHTML='<div class="win"><b class="'+cor+'">'+msg+'</b></div>'+
+    '<div class="res"><span>Fatura vence em</span><b>'+fmtD(due)+' ('+dias+' dias)</b></div>'+
+    '<div class="res"><span>Pix hoje</span><b>'+R(pix)+'</b></div>'+
+    '<div class="res"><span>Crédito</span><b>'+n+'x de '+R(pm)+'</b></div>'+
+    '<div class="res"><span>Limite livre</span><b>'+R(livre)+' de '+R(LIM)+'</b></div>'+
+    '<div class="res"><span>Previsto em '+fmtD(due)+' (sem a compra)</span><b>'+R(s.base)+'</b></div>'+
+    '<div class="mu">Carteira '+R(s.w)+' + recebimentos '+R(s.rec)+' - fixos '+R(s.fix)+' - faturas '+R(s.fat)+' - variáveis '+R(s.vr)+'</div>'+
+    '<div class="res"><span>Sobra após a parcela</span><b class="'+(sobra<0?'neg':'')+'">'+R(sobra)+'</b></div>'+
+    '<div class="mu" style="margin-top:8px">'+tip+'</div>'}
+function autoFix(){var t=hoje(),ch=false;(S.f||[]).forEach(function(f){if(!f.auto)return;
+  for(var i=0;i<12;i++){var b=f.ult?new Date(f.ult+"-01T00:00:00"):new Date(t.getFullYear(),t.getMonth(),1),nx=new Date(b.getFullYear(),b.getMonth()+1,1);
+    if(nx>t)break;var due=dueOf(nx.getFullYear(),nx.getMonth(),f);if(due>t)break;
+    S.w=(S.w||0)-f.v;f.ult=ymd(nx).slice(0,7);if(f.ult==ym)f.paid=ym;ch=true}});
+  if(ch)save()}
+function autoF(id){var f=S.f.find(function(x){return x.id==id});if(!f)return;f.auto=!f.auto;
+  if(f.auto){var pas=dueOf(now.getFullYear(),now.getMonth(),f)<=hoje();f.ult=pas?ym:ymd(new Date(now.getFullYear(),now.getMonth()-1,1)).slice(0,7);if(pas)f.paid=ym}
+  save();render();toast(f.auto?"Automático ligado: desconta da carteira no vencimento":"Automático desligado")}
+var PM=new Date(now.getFullYear(),now.getMonth(),1);
+function planMove(d){PM=new Date(PM.getFullYear(),PM.getMonth()+d,1);renderPlan();renderPie()}
+function renderPlan(){var k=ymd(PM).slice(0,7),L=(S.g||[]).filter(function(x){return x.d.slice(0,7)==k}).sort(function(a,b){return a.d.localeCompare(b.d)||a.id-b.id}),tot=L.reduce(function(a,x){return a+x.v},0),dias=(k==ym)?now.getDate():new Date(PM.getFullYear(),PM.getMonth()+1,0).getDate(),cat={};
+  L.forEach(function(x){cat[x.c]=(cat[x.c]||0)+x.v});
+  $("plT").textContent=PM.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
+  $("plTot").textContent=R(tot);$("plMed").textContent=R(tot/dias);
+  $("plTab").innerHTML='<thead><tr><th>Dia</th><th>Descrição</th><th>Categoria</th><th>Pgto</th><th class="n">Valor</th></tr></thead><tbody>'+(L.map(function(x){return '<tr><td>'+x.d.slice(8)+'/'+x.d.slice(5,7)+'</td><td>'+esc(x.t)+'</td><td>'+esc(x.c)+'</td><td>'+(x.m=="cred"?"Crédito":"Pix/Déb")+'</td><td class="n">'+R(x.v)+'</td></tr>'}).join("")||'<tr><td colspan="5" class="mu">Nenhum gasto neste mês.</td></tr>')+'</tbody><tfoot><tr><td colspan="4">Total</td><td class="n">'+R(tot)+'</td></tr></tfoot>';
+  $("plCat").innerHTML=Object.keys(cat).sort(function(a,b){return cat[b]-cat[a]}).map(function(c){var p=tot?cat[c]/tot*100:0;return '<div style="margin-bottom:10px"><div class="row"><span>'+esc(c)+'</span><b>'+R(cat[c])+' <span class="mu">'+p.toFixed(0)+'%</span></b></div><div class="bar" style="margin:4px 0 0"><i style="width:'+p+'%"></i></div></div>'}).join("")||'<div class="mu">Sem dados.</div>'}
+var PAL=["#0f9d6b","#3b82f6","#f59e0b","#ef4444","#8b5cf6","#ec4899","#14b8a6","#94a3b8"];
+function renderPie(){var k=ymd(PM).slice(0,7),cat={},tot=0;(S.g||[]).forEach(function(x){if(x.d.slice(0,7)==k){cat[x.c]=(cat[x.c]||0)+x.v;tot+=x.v}});
+  var ks=Object.keys(cat).sort(function(a,b){return cat[b]-cat[a]}),o=$("plPie");if(!o)return;
+  if(!tot){o.innerHTML='<div class="mu">Sem gastos neste mês para o gráfico.</div>';return}
+  var acc=0,seg=ks.map(function(c,i){var p=cat[c]/tot*100,s=PAL[i%PAL.length]+" "+acc+"% "+(acc+p)+"%";acc+=p;return s}).join(",");
+  o.innerHTML='<div style="width:200px;height:200px;border-radius:50%;margin:8px auto 16px;background:conic-gradient('+seg+')"></div>'+ks.map(function(c,i){return '<div class="row" style="padding:4px 0"><span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+PAL[i%PAL.length]+';margin-right:8px"></i>'+esc(c)+'</span><b>'+(cat[c]/tot*100).toFixed(0)+'% · '+R(cat[c])+'</b></div>'}).join("")}
+function PCT(){return S.pct==null?10:S.pct}
+function setPct(){var v=parseFloat($("pct").value);S.pct=isNaN(v)?10:Math.min(100,Math.max(0,v));save();render()}
+function renderGuardar(){var p=PCT(),pi=$("pct");if(document.activeElement!==pi)pi.value=p;
+  var tot=0,h=proximo().map(function(x){var g=x.v*p/100;tot+=g;return '<div class="item"><div><b>'+x.n+'</b><div class="mu">'+fmtD(x.d)+' · recebe '+R(x.v)+'</div></div><div style="text-align:right"><b class="pos">'+R(g)+'</b><div class="mu">fica '+R(x.v-g)+'</div></div></div>'}).join("");
+  var mt=(S.m||[]).reduce(function(a,m){return a+pmt(m.v,m.g,m.n,m.r)},0);
+  h+='<div class="res"><span>Total guardado por mês</span><b>'+R(tot)+'</b></div><div class="res"><span>Em 12 meses (sem rendimento)</span><b>'+R(tot*12)+'</b></div>'+(mt>0?'<div class="mu" style="margin-top:8px">Suas metas pedem '+R(mt)+' por mês: guardando '+R(tot)+' você cobre '+Math.min(100,tot/mt*100).toFixed(0)+'%.</div>':'');
+  $("guardar").innerHTML=h}
+function addG(){var t=$("gd").value.trim(),v=parseFloat($("gv").value),d=$("gdt").value||now.toISOString().slice(0,10);
+  if(!t||!(v>0)){alert("Preencha descrição e valor");return}
+  var mp=$("gm").value,inf=carteira(),ch=t+"|"+v;if(mp=="cred"&&v>LIM-usadoLim()){toast("Passa do limite livre do cartão ("+R(Math.max(0,LIM-usadoLim()))+")");return}if(mp!="cred"&&v>inf.disp&&window._av!=ch){window._av=ch;toast("Esse gasto passa do que você pode usar até o próximo recebimento ("+R(Math.max(0,inf.disp))+"). Toque em Adicionar de novo para registrar mesmo assim.");return}window._av="";
+  if(mp!="cred")S.w=(S.w||0)-v;S.g.push({id:Date.now(),t:t,v:v,c:$("gc").value,d:d,m:mp});save();$("gd").value="";$("gv").value="";render()}
+function delG(id){var x=S.g.find(function(y){return y.id==id});if(x&&(x.m!="cred"||x.pago))S.w=(S.w||0)+x.v;S.g=S.g.filter(function(x){return x.id!=id});save();render()}
+function addI(){var n=$("in").value.trim(),v=parseFloat($("iv").value);if(!n||!(v>=0)){alert("Preencha nome e valor");return}
+  var f=S.i.find(function(x){return x.n.toLowerCase()==n.toLowerCase()});if(f)f.v=v;else S.i.push({n:n,v:v});
+  save();$("in").value="";$("iv").value="";render()}
+function editI(k){$("in").value=S.i[k].n;$("iv").value=S.i[k].v;$("iv").focus()}
+function delI(k){S.i.splice(k,1);save();render()}
+$("gdt").value=ymd(hoje());$("ldt").value=ymd(hoje());
+var CONTA_NOME="";
+function setConta(name,msg){if(name)CONTA_NOME=name;$("conta").innerHTML='<div style="min-width:0"><b style="word-break:break-all">'+esc(CONTA_NOME||"Visitante")+'</b><div class="mu">'+msg+'</div></div><div style="text-align:right"><span class="pill">'+(UID?"\u2601\ufe0f Conta":"\ud83d\udcf1 Local")+'</span><br><button class="x" style="padding:6px 0 0;font-size:13px;color:var(--ac)" onclick="sair()">Sair</button></div>'}
+function authMsg(t){$("amsg").textContent=t}
+function trad(m){m=String(m||"");var T={"Invalid login credentials":"E-mail ou senha incorretos","Email not confirmed":"Confirme seu e-mail antes de entrar","User already registered":"Este e-mail j\u00e1 tem conta. Toque em Entrar"};
+  if(T[m])return T[m];if(/at least 6/i.test(m))return"A senha precisa ter pelo menos 6 caracteres";if(/rate limit|too many/i.test(m))return"Muitas tentativas. Tente de novo em alguns minutos.";if(/valid email|invalid.*email/i.test(m))return"Digite um e-mail v\u00e1lido";return m}
+async function entrar(){if(!SB)return;var e=$("aem").value.trim(),p=$("apw").value;if(!e||!p){authMsg("Preencha e-mail e senha");return}
+  authMsg("Entrando...");var r=await SB.auth.signInWithPassword({email:e,password:p});if(r.error)authMsg(trad(r.error.message))}
+async function criar(){if(!SB)return;var e=$("aem").value.trim(),p=$("apw").value;if(!e||!p){authMsg("Preencha e-mail e senha");return}
+  authMsg("Criando conta...");var r=await SB.auth.signUp({email:e,password:p});if(r.error){authMsg(trad(r.error.message));return}
+  if(!r.data.session)authMsg("Conta criada! Confirme o e-mail que enviamos e depois toque em Entrar.")}
+async function sair(){if(SB)await SB.auth.signOut()}
+async function iniciar(u){if(UID==u.id)return;UID=u.id;K="fin_v1_"+UID;S={g:[],i:[]};
+  var r=await SB.from("financas").select("data").eq("user_id",UID).maybeSingle();
+  if(r.error){UID=null;authMsg("N\u00e3o foi poss\u00edvel carregar seus dados: "+r.error.message);return}
+  if(r.data&&r.data.data){S=r.data.data;S.g=S.g||[];S.i=S.i||[]}
+  else{try{var l=localStorage.getItem(K);if(l)S=JSON.parse(l)}catch(e){}await SB.from("financas").upsert({user_id:UID,data:S})}
+  $("auth").style.display="none";$("aem").value="";$("apw").value="";authMsg("");
+  setConta(u.email,"Sincronizado na sua conta. Seus dados s\u00e3o s\u00f3 seus.");render()}
+function desligar(){UID=null;S={g:[],i:[]};$("auth").style.display="flex";authMsg("");setConta("","");render()}
+$("apw").addEventListener("keydown",function(e){if(e.key=="Enter")entrar()});
+if(!SB){authMsg("N\u00e3o foi poss\u00edvel carregar o login. Verifique sua conex\u00e3o e recarregue.")}
+else SB.auth.onAuthStateChange(function(ev,session){setTimeout(function(){if(session&&session.user)iniciar(session.user);else desligar()},0)});
+document.querySelectorAll("nav button").forEach(function(b){b.onclick=function(){
+  document.querySelectorAll("nav button").forEach(function(x){x.classList.remove("on")});b.classList.add("on");
+  document.querySelectorAll(".sec").forEach(function(s){s.classList.remove("on")});$("s-"+b.dataset.t).classList.add("on");window.scrollTo(0,0)}});
+render();
+</script>
+</body>
+</html>
