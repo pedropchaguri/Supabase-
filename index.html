@@ -101,6 +101,13 @@ nav div{overflow-x:auto}
     <div class="card"><div class="mu">Entradas</div><b id="ent">R$ 1.320,00</b><div class="mu" id="entd"></div></div>
     <div class="card"><div class="mu">Investido</div><b id="inv">R$ 0,00</b><div class="mu">total guardado</div></div>
   </div>
+  <h2>BANCO</h2>
+  <div class="card">
+    <button class="btn" id="bkBtn" onclick="syncBanco()">Sincronizar compras do banco</button>
+    <div class="mu" id="bkSt" style="margin-top:8px"></div>
+  </div>
+  <h2>CARTÃO DE CRÉDITO</h2>
+  <div class="card" id="cartaoHome"></div>
   <h2>POSSO COMPRAR?</h2>
   <div class="card">
     <input id="pc" type="number" inputmode="decimal" step="0.01" placeholder="Valor da compra (R$)" oninput="calcPosso()">
@@ -269,7 +276,7 @@ function render(){autoFix();RENDA=S.rend||[];TOT=RENDA.reduce(function(a,r){retu
   $("ult").innerHTML=L.slice(0,3).map(function(x){return row(x,false)}).join("")||'<div class="mu">Nenhum gasto ainda.</div>';
   $("listaG").innerHTML=L.map(function(x){return row(x,true)}).join("")||'<div class="mu">Nenhum gasto ainda.</div>';
   $("listaI").innerHTML=S.i.map(function(x,k){return '<div class="item"><div><b>'+esc(x.n)+'</b></div><div><b>'+R(x.v)+'</b><button class="x" onclick="editI('+k+')">✎</button><button class="x" onclick="delI('+k+')">×</button></div></div>'}).join("")||'<div class="mu">Nenhum investimento cadastrado.</div>';
-  sugestoes(sal,ti,tg);renderMetas();calcLim();renderFixos();renderCal();renderWallet();calcPosso();renderCartao();renderPlan();renderPie();renderGuardar();
+  sugestoes(sal,ti,tg);renderMetas();calcLim();renderFixos();renderCal();renderWallet();calcPosso();renderCartao();renderPlan();renderPie();renderGuardar();bkRender();
 }
 function sugestoes(sal,ti,tg){
   var pc=PCT()/100,meta=Math.round(TOT*pc),T=[];
@@ -371,7 +378,7 @@ function saldoEm(due){var t=hoje(),w=S.w||0,rec=0,fix=0,fat=0;
   var dias=Math.max(0,Math.round((due-t)/864e5)),vr=mediaVar()*dias;
   return{w:w,rec:rec,fix:fix,fat:fat,vr:vr,dias:dias,base:w+rec-fix-fat-vr}}
 function renderCartao(){var u=usadoLim(),f=faturas(),t=hoje(),fe=new Date(t.getFullYear(),t.getMonth(),FECHA);if(fe<t)fe=new Date(t.getFullYear(),t.getMonth()+1,FECHA);var dc=Math.round((fe-t)/864e5);
-  $("cartao").innerHTML='<div class="row"><b>Limite de '+R(LIM)+'</b><span class="mu">fecha dia '+FECHA+' · vence dia '+VENCE+'</span></div><div class="bar"><i style="width:'+Math.min(100,u/LIM*100)+'%"></i></div><div class="mu">Usado '+R(u)+' · livre '+R(Math.max(0,LIM-u))+'</div><div class="mu">'+(dc==0?'A fatura fecha hoje':'Fecha em '+dc+(dc==1?' dia':' dias')+' ('+fmtD(fe)+')')+'</div>'+f.map(function(x,i){return '<div class="item"><div><b>Fatura de '+fmtD(x.due)+'</b><div class="mu">'+x.ids.length+' compra(s)</div></div><div><b>'+R(x.total)+'</b><button class="x" style="font-size:13px;color:var(--ac)" onclick="payFat('+i+')">Paguei</button></div></div>'}).join("")}
+  $("cartao").innerHTML=$("cartaoHome").innerHTML='<div class="row"><b>Limite de '+R(LIM)+'</b><span class="mu">fecha dia '+FECHA+' · vence dia '+VENCE+'</span></div><div class="bar"><i style="width:'+Math.min(100,u/LIM*100)+'%"></i></div><div class="mu">Usado '+R(u)+' · livre '+R(Math.max(0,LIM-u))+'</div><div class="mu">'+(dc==0?'A fatura fecha hoje':'Fecha em '+dc+(dc==1?' dia':' dias')+' ('+fmtD(fe)+')')+'</div>'+f.map(function(x,i){return '<div class="item"><div><b>Fatura de '+fmtD(x.due)+'</b><div class="mu">'+x.ids.length+' compra(s)</div></div><div><b>'+R(x.total)+'</b><button class="x" style="font-size:13px;color:var(--ac)" onclick="payFat('+i+')">Paguei</button></div></div>'}).join("")}
 function payFat(i){var f=faturas()[i];if(!f)return;var set=function(v){S.g.forEach(function(x){if(f.ids.indexOf(x.id)>=0)x.pago=v})};set(true);S.w=(S.w||0)-f.total;save();render();toast("Fatura de "+fmtD(f.due)+" paga: "+R(f.total),function(){set(false);S.w=(S.w||0)+f.total;save();render()})}
 function calcLim(){var o=$("limRes");if(!o)return;
   var V=parseFloat($("lv").value),n=Math.max(1,parseInt($("lp").value)||1),j=(parseFloat($("lj").value)||0)/100,dp=(parseFloat($("ld").value)||0)/100,r=(parseFloat($("lr").value)||0)/100,t=hoje(),dt=$("ldt").value?pd($("ldt").value):t;
@@ -424,6 +431,26 @@ function renderGuardar(){var p=PCT(),pi=$("pct");if(document.activeElement!==pi)
   var mt=(S.m||[]).reduce(function(a,m){return a+pmt(m.v,m.g,m.n,m.r)},0);
   h+='<div class="res"><span>Total guardado por mês</span><b>'+R(tot)+'</b></div><div class="res"><span>Em 12 meses (sem rendimento)</span><b>'+R(tot*12)+'</b></div>'+(mt>0?'<div class="mu" style="margin-top:8px">Suas metas pedem '+R(mt)+' por mês: guardando '+R(tot)+' você cobre '+Math.min(100,tot/mt*100).toFixed(0)+'%.</div>':'');
   $("guardar").innerHTML=h}
+var SYNCING=false;
+function catDe(t){t=String(t||"").toLowerCase();
+  if(/mercado|supermerc|padaria|restaur|lanch|ifood|pizza|burger|a[cç]ougue|caf[eé]|bar |sorvet|hortifruti/.test(t))return"Alimentação";
+  if(/uber|99|posto|combust|estaciona|ônibus|onibus|metr[oô]|transporte|gasolina/.test(t))return"Transporte";
+  if(/netflix|spotify|cinema|steam|playstation|xbox|disney|prime video|ingresso|youtube/.test(t))return"Lazer";
+  if(/luz|energia|internet|vivo|claro|tim |água|agua|condom|aluguel|seguro/.test(t))return"Contas";
+  if(/amazon|mercado livre|shopee|magalu|americanas|shein|loja|aliexpress/.test(t))return"Compras";
+  return"Outros"}
+function bkRender(){var e=$("bkSt");if(!e)return;e.textContent=(S.bank&&S.bank.last)?"Última sincronização: "+new Date(S.bank.last).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})+". O Open Finance atualiza os dados a cada 24 h.":"Importa suas compras do Nubank e do Itaú pelo Open Finance."}
+async function syncBanco(silent){if(SYNCING||!SB||!UID)return;SYNCING=true;var btn=$("bkBtn");if(!silent){btn.disabled=true;btn.textContent="Sincronizando..."}
+  try{var ss=await SB.auth.getSession(),tk=ss.data.session&&ss.data.session.access_token;if(!tk)throw new Error("Sessão expirada. Entre de novo.");
+    var r=await fetch("/api/pluggy",{headers:{Authorization:"Bearer "+tk}}),j=await r.json().catch(function(){return{}});
+    if(!r.ok||!j.ok)throw new Error(j.error||"Não foi possível sincronizar agora.");
+    S.g=S.g||[];S.bank=S.bank||{};if(!S.bank.since)S.bank.since=ymd(hoje());
+    var have={};S.g.forEach(function(x){if(x.pid)have[x.pid]=1});var n=0;
+    j.items.forEach(function(x){if(have[x.pid])return;have[x.pid]=1;S.g.push({id:Date.now()+n,t:x.t,v:x.v,c:catDe(x.t),d:x.d,m:x.m,pid:x.pid});n++;if(x.m!="cred"&&x.d>=S.bank.since)S.w=(S.w||0)-x.v});
+    S.bank.last=new Date().toISOString();save();render();
+    if(!silent||n)toast(n?n+" compra(s) nova(s) importada(s)":"Nenhuma compra nova")}
+  catch(e){if(!silent)toast(String(e.message||e))}
+  SYNCING=false;btn.disabled=false;btn.textContent="Sincronizar compras do banco"}
 function addG(){var t=$("gd").value.trim(),v=parseFloat($("gv").value),d=$("gdt").value||now.toISOString().slice(0,10);
   if(!t||!(v>0)){alert("Preencha descrição e valor");return}
   var mp=$("gm").value,inf=carteira(),ch=t+"|"+v;if(mp=="cred"&&v>LIM-usadoLim()){toast("Passa do limite livre do cartão ("+R(Math.max(0,LIM-usadoLim()))+")");return}if(mp!="cred"&&v>inf.disp&&window._av!=ch){window._av=ch;toast("Esse gasto passa do que você pode usar até o próximo recebimento ("+R(Math.max(0,inf.disp))+"). Toque em Adicionar de novo para registrar mesmo assim.");return}window._av="";
@@ -461,7 +488,7 @@ async function iniciar(u){if(UID==u.id)return;UID=u.id;K="fin_v1_"+UID;S={g:[],i
   if(r.data&&r.data.data){S=r.data.data;S.g=S.g||[];S.i=S.i||[]}
   else{try{var l=localStorage.getItem(K);if(l)S=JSON.parse(l)}catch(e){}await SB.from("financas").upsert({user_id:UID,data:S})}
   $("auth").style.display="none";$("aem").value="";$("apw").value="";authMsg("");
-  setConta(u.email,"Sincronizado na sua conta. Seus dados s\u00e3o s\u00f3 seus.");render();if(!S.setup)abrirSetup(true)}
+  setConta(u.email,"Sincronizado na sua conta. Seus dados s\u00e3o s\u00f3 seus.");render();if(!S.setup)abrirSetup(true);if(S.bank&&S.bank.last&&Date.now()-new Date(S.bank.last).getTime()>3*36e5)setTimeout(function(){syncBanco(true)},800)}
 function desligar(){UID=null;S={g:[],i:[]};$("setup").style.display="none";$("auth").style.display="flex";authMsg("");setConta("","");render()}
 $("apw").addEventListener("keydown",function(e){if(e.key=="Enter")entrar()});
 if(!SB){authMsg("N\u00e3o foi poss\u00edvel carregar o login. Verifique sua conex\u00e3o e recarregue.")}
